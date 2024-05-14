@@ -1,12 +1,17 @@
-# vue-zoomable
+# vue-zoomable-ktee
 
 Tiny and high performance zoom and pan library for Vue 3. It uses CSS Transforms which provides hardware acceleration.
 
 Checkout the [demos](https://hassaanakbar.github.io/vue-zoomable/demos/).
 
+## Basic
+
+vue-zoomable
+Checkout the [vue-zoomable](https://github.com/HassaanAkbar/vue-zoomable).
+
 ## Installation
 
-`npm install vue-zoomable`
+`npm install vue-zoomable-ktee`
 
 ## Usage
 
@@ -29,8 +34,8 @@ Immediate child of VueZoomable must be either svg or an html container.
 </template>
 
 <script setup lang="ts">
-import VueZoomable from "vue-zoomable";
-import "vue-zoomable/dist/style.css";
+import VueZoomable from "vue-zoomable-ktee";
+import "vue-zoomable-ktee/dist/style.css";
 </script>
 ```
 
@@ -61,6 +66,7 @@ import "vue-zoomable/dist/style.css";
 | buttonPanStep        | number  | 15        | Step size for pan on controll buttons                                                                                                              |
 | buttonZoomStep       | number  | 0.1       | Step size for pan on controll buttons                                                                                                              |
 | enableWheelOnKey     | string  | undefined | If not null, the wheel is disabled, until the corresponding Key is pressed. You can set it to any value of `event.key`. [see here](#document-flow) |
+| enableScrollOverlay     | boolean  | false | Display the ScrollOverlay layer, whether it is displayed or not, will be returned in @scrollOverlay. |
 
 ### Document Flow
 
@@ -157,3 +163,4 @@ Other ways to help:
 ## Acknowledgements
 
 - [@panzoom/panzoom](https://github.com/timmywil/panzoom)
+- [HassaanAkbar/vue-zoomable](https://github.com/HassaanAkbar/vue-zoomable)

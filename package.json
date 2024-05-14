@@ -1,6 +1,6 @@
 {
-  "name": "vue-zoomable",
-  "version": "1.1.9",
+  "name": "vue-zoomable-ktee",
+  "version": "1.1.11",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -14,7 +14,7 @@
   "module": "./dist/vue-zoomable.mjs",
   "types": "./dist/types/index.d.ts",
   "website": "https://hassaanakbar.github.io/vue-zoomable/",
-  "repository": "https://github.com/HassaanAkbar/vue-zoomable",
+  "repository": "https://github.com/KelvinTee58/vue-zoomable-ktee",
   "exports": {
     ".": {
       "import": "./dist/vue-zoomable.mjs",

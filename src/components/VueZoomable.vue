@@ -1,24 +1,22 @@
 <template>
-  <div ref="container" class="container" :class="$style.container" @mousedown="onMouseDown" @dblclick="mouse.onDblClick"
-    @touchstart="touch.onTouchStart" @wheel="wheel.onWheel" @mouseleave="onMouseLeave" @mouseenter="onMouseEnter">
-    <ControllButtons v-if="props.enableControllButton" @button-home="button.onHome" @button-pan="button.onPan"
-      @button-zoom="button.onZoom" @mousedown="updateHideOverlay(true);"></ControllButtons>
+  <div ref="container" class="container" :class="$style.container" @mousedown="onMouseDown" @dblclick="mouse.onDblClick" @touchstart="touch.onTouchStart" @wheel="wheel.onWheel" @mouseleave="onMouseLeave" @mouseenter="onMouseEnter">
+    <ControllButtons v-if="props.enableControllButton" @button-home="button.onHome" @button-pan="button.onPan" @button-zoom="button.onZoom" @mousedown="updateHideOverlay(true)"></ControllButtons>
     <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, createApp, onMounted, watch } from 'vue';
+import { computed, ref, Ref, createApp, onMounted, watch } from "vue";
 import { useMouse } from "../composables/useMouse";
 import { useTouch } from "../composables/useTouch";
 import { useWheel } from "../composables/useWheel";
 import { useButtons } from "../composables/useButtons";
 import ControllButtons from "./ControllButtons.vue";
-import ScrollOverlay from './ScrollOverlay.vue';
+import ScrollOverlay from "./ScrollOverlay.vue";
 
 const hideOverlay: Ref<boolean> = ref(true);
 
-let emitNative = defineEmits(["panned", "zoom", "update:zoom", "update:pan"]);
+let emitNative = defineEmits(["panned", "zoom", "update:zoom", "update:pan", "scrollOverlay"]);
 let props = defineProps({
   zoom: {
     type: Number,
@@ -100,11 +98,15 @@ let props = defineProps({
   enableWheelOnKey: {
     type: String,
     default: undefined,
-  }
+  },
+  enableScrollOverlay: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 let container = ref();
-let transformTarget = computed<HTMLElement>(() => container.value?.querySelector(props.selector))
+let transformTarget = computed<HTMLElement>(() => container.value?.querySelector(props.selector));
 
 let zoom = ref(props.minZoom);
 if (props.initialZoom >= props.minZoom && props.initialZoom <= props.maxZoom) {
@@ -133,8 +135,9 @@ watch(
       pan.value.x = props.pan.x;
       pan.value.y = props.pan.y;
     }
-  }
-  , { deep: true });
+  },
+  { deep: true }
+);
 
 function emit(name: string, event: ZoomableEvent) {
   if (name === "zoom") {
@@ -166,37 +169,39 @@ watch(
 );
 
 onMounted(() => {
-  const placeholder = document.createElement('div');
+  const placeholder = document.createElement("div");
   const scrollOverlayApp = createApp(ScrollOverlay, { enableWheelOnKey: props.enableWheelOnKey });
 
   // needs to be injected before it is mounted
   scrollOverlayApp.provide("hideOverlay", { hideOverlay });
 
-  scrollOverlayApp.mount(placeholder)
+  scrollOverlayApp.mount(placeholder);
   container.value.appendChild(placeholder);
 
   setTransform();
 });
 
-
 const pressedKeys: Ref<Set<String>> = ref(new Set<String>());
 
 onMounted(() => {
   window.addEventListener(
-    'wheel',
-    event => {
+    "wheel",
+    (event) => {
       if (!isInContainer.value || props.enableWheelOnKey !== "Control") return;
       if (event.ctrlKey) event.preventDefault();
-    }, { passive: false },
+    },
+    { passive: false }
   );
 
   // track the keys, which are currently pressed
-  document.addEventListener('keydown', (event) => {
+  document.addEventListener("keydown", (event) => {
     pressedKeys.value.add(event.key);
     if (event.key === props.enableWheelOnKey) hideOverlay.value = true;
   });
-  document.addEventListener('keyup', (event) => { pressedKeys.value.delete(event.key); });
-})
+  document.addEventListener("keyup", (event) => {
+    pressedKeys.value.delete(event.key);
+  });
+});
 
 // track if the mouse is in the container
 const isInContainer = ref(false);
@@ -210,8 +215,15 @@ function onMouseLeave() {
   isInContainer.value = false;
 }
 
-function showOverlay() { hideOverlay.value = false; }
-function updateHideOverlay(newHideOverlay: boolean) { hideOverlay.value = newHideOverlay; }
+function showOverlay() {
+  hideOverlay.value = false;
+}
+function updateHideOverlay(newHideOverlay: boolean = false) {
+  emitNative("scrollOverlay", newHideOverlay);
+  // console.log('newHideOverlay :>> ', newHideOverlay);
+  if (!props.enableScrollOverlay) return;
+  hideOverlay.value = newHideOverlay;
+}
 
 let mouse = useMouse(props, emit, pan, zoom, updateHideOverlay);
 let touch = useTouch(props, emit, pan, zoom, updateHideOverlay);
